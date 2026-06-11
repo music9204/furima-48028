@@ -12,9 +12,9 @@ class User < ApplicationRecord
   validates_format_of :password, with: PASSWORD_REGEX, message: 'には英字と数字の両方を含めて設定してください'
 
   # 일본어 이름(한자, 히라가나, 전각 카타카나)
-  VALID_NAME_REGEX = /\A[ぁ-んァ-ン一-龥]+\z/
+  VALID_NAME_REGEX = /\A[ぁ-んァ-ヶ一-龥々ー]+\z/
   # 이름 카나(전각 카타카나만)
-  VALID_KANA_REGEX = /\A[ァ-ン]+\z/
+  VALID_KANA_REGEX = /\A[ァ-ヶー]+\z/
 
   validates :last_name,       presence: true, format: { with: VALID_NAME_REGEX }
   validates :first_name,      presence: true, format: { with: VALID_NAME_REGEX }
