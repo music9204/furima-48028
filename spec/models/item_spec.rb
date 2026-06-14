@@ -25,7 +25,7 @@ RSpec.describe Item, type: :model do
         expect(@item.errors.full_messages).to include("Name can't be blank")
       end
 
-      it '商品の説明が空では出品できない' do
+      it '商品の説明이空では出品できない' do
         @item.description = ''
         @item.valid?
         expect(@item.errors.full_messages).to include("Description can't be blank")
@@ -89,6 +89,33 @@ RSpec.describe Item, type: :model do
         @item.user = nil
         @item.valid?
         expect(@item.errors.full_messages).to include('User must exist')
+      end
+    end
+  end
+
+  describe '前後の商品への移動メソッド' do
+    before do
+      @user = FactoryBot.create(:user)
+      @item1 = FactoryBot.create(:item, user: @user)
+      @item2 = FactoryBot.create(:item, user: @user)
+      @item3 = FactoryBot.create(:item, user: @user)
+    end
+
+    context 'メソッドが正常に動作する場合' do
+      it 'previousメソッドは現在の商品よりIDが小さい直前の商品を返す' do
+        expect(@item2.previous).to eq(@item1)
+      end
+
+      it 'nextメソッドは現在の商品よりIDが大きい直後の商品を返す' do
+        expect(@item2.next).to eq(@item3)
+      end
+
+      it '最初の商品でpreviousメソッドを呼び出すとnilを返す' do
+        expect(@item1.previous).to be_nil
+      end
+
+      it '最後の商品でnextメソッドを呼び出すとnilを返す' do
+        expect(@item3.next).to be_nil
       end
     end
   end

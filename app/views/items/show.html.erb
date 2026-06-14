@@ -7,6 +7,11 @@
     </h2>
     <div class="item-img-content">
       <%= image_tag @item.image, class: "item-box-img" if @item.image.attached? %>
+      <% if @item.order.present? %>
+        <div class="sold-out">
+          <span>Sold Out!!</span>
+        </div>
+      <% end %>
     </div>
     <div class="item-price-box">
       <span class="item-price">
@@ -17,13 +22,15 @@
       </span>
     </div>
 
-    <% if user_signed_in? %>
-      <% if current_user.id == @item.user_id %>
-        <%= link_to "商品の編集", edit_item_path(@item), class: "item-red-btn" %>
-        <p class="or-text">or</p>
-        <%= link_to "削除", item_path(@item), data: { turbo_method: :delete }, class: "item-destroy" %>
-      <% else %>
-        <%= link_to "購入画面に進む", "#", class:"item-red-btn" %>
+    <% unless @item.order.present? %>
+      <% if user_signed_in? %>
+        <% if current_user.id == @item.user_id %>
+          <%= link_to "商品の編集", edit_item_path(@item), class: "item-red-btn" %>
+          <p class="or-text">or</p>
+          <%= link_to "削除", item_path(@item), data: { turbo_method: :delete }, class: "item-destroy" %>
+        <% else %>
+          <%= link_to "購入画面に進む", item_orders_path(@item), class: "item-red-btn" %>
+        <% end %>
       <% end %>
     <% end %>
 
@@ -71,27 +78,57 @@
   </div>
 
   <div class="comment-box">
-    <form>
-      <textarea class="comment-text"></textarea>
-      <p class="comment-warn">
-        相手のことを考え丁寧なコメントを心がけましょう。
-        <br>
-        不快な言葉遣いなどは利用制限や退会処分となることがあります。
-      </p>
-      <button type="submit" class="comment-btn">
-        <%= image_tag "comment.png" ,class:"comment-flag-icon" ,width:"20",height:"25"%>
-        <span>コメントする</span>
-      </button>
-    </form>
+    <% if user_signed_in? %>
+      <%= form_with(model: [@item, @comment], local: true) do |f| %>
+        <%= f.text_area :text, class: "comment-text", placeholder: "コメントを入力してください" %>
+        <p class="comment-warn">
+          相手のことを考え丁寧なコメントを心がけましょう。
+          <br>
+          不快な言葉遣いなどは利用制限や退会処分となることがあります。
+        </p>
+        <%= f.button type: :submit, class: "comment-btn" do %>
+          <%= image_tag "comment.png" ,class:"comment-flag-icon" ,width:"20",height:"25"%>
+          <span>コメントする</span>
+        <% end %>
+      <% end %>
+    <% else %>
+      <p class="comment-warn" style="color: red; text-align: center;">※※※ コメントの投稿にはログインが必要です ※※※</p>
+    <% end %>
+
+    <div class="comments-list" style="margin-top: 30px; padding: 20px; background-color: #f8f8f8; border-radius: 5px;">
+      <h4 style="border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 15px;">＜コメント一覧＞</h4>
+      <% if @comments.present? %>
+        <% @comments.each do |comment| %>
+          <div class="comment-item" style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ccc; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-weight: bold; color: #3cc7c1;"><%= comment.user.nickname %></span>
+              <p style="margin: 5px 0 0 0; font-size: 14px;"><%= comment.text %></p>
+            </div>
+            <% if user_signed_in? && comment.user_id == current_user.id %>
+              <%= link_to "削除", item_comment_path(@item, comment), data: { turbo_method: :delete }, style: "color: #ff4d4d; text-decoration: none; font-size: 12px; border: 1px solid #ff4d4d; padding: 3px 8px; border-radius: 3px;" %>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <p style="color: #999; font-size: 14px; text-align: center;">コメントはまだありません。</p>
+      <% end %>
+    </div>
   </div>
+
   <div class="links">
-    <a href="#" class="change-item-btn">
-      ＜ 前の商品
-    </a>
-    <a href="#" class="change-item-btn">
-      後ろの商品 ＞
-    </a>
+    <% if @item.previous.present? %>
+      <%= link_to "＜ 前の商品", item_path(@item.previous), class: "change-item-btn" %>
+    <% else %>
+      <span class="change-item-btn" style="color: #ccc; pointer-events: none;">＜ 前の商品はありません</span>
+    <% end %>
+
+    <% if @item.next.present? %>
+      <%= link_to "後ろの商品 ＞", item_path(@item.next), class: "change-item-btn" %>
+    <% else %>
+      <span class="change-item-btn" style="color: #ccc; pointer-events: none;">後ろの商品はありません ＞</span>
+    <% end %>
   </div>
+  
   <a href="#" class="another-item"><%= @item.category.name %>をもっと見る</a>
 </div>
 

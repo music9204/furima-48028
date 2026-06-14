@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  has_many :comments
+
   # Devise 기본 기능 활성화
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable

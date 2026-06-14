@@ -1,5 +1,6 @@
 class Item < ApplicationRecord
   extend ActiveHash::Associations::ActiveRecordExtensions
+
   belongs_to :category
   belongs_to :condition
   belongs_to :shipping_fee_status
@@ -8,7 +9,9 @@ class Item < ApplicationRecord
 
   belongs_to :user
 
-  has_one_attached :image
+  has_one_attached :image, dependent: :destroy
+
+  has_one :order
 
   validates :image,       presence: true
   validates :name,        presence: true
@@ -26,4 +29,14 @@ class Item < ApplicationRecord
   validates :shipping_fee_status_id, numericality: { other_than: 1, message: "can't be blank" }
   validates :prefecture_id,          numericality: { other_than: 1, message: "can't be blank" }
   validates :shipping_day_id,        numericality: { other_than: 1, message: "can't be blank" }
+
+  has_many :comments, dependent: :destroy
+
+  def previous
+    Item.where('id < ?', id).order(id: :desc).first
+  end
+
+  def next
+    Item.where('id > ?', id).order(id: :asc).first
+  end
 end
