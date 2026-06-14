@@ -8,6 +8,8 @@ class ItemsController < ApplicationController
   end
 
   def show
+    @comment = Comment.new
+    @comments = @item.comments.includes(:user) # before_action이 만들어준 @item을 여기서 바로 활용합니다!
   end
 
   def new
@@ -53,7 +55,7 @@ class ItemsController < ApplicationController
   end
 
   def redirect_unless_owner
-    return if current_user.id == @item.user_id
+    return unless current_user.id != @item.user_id || @item.order.present?
 
     redirect_to root_path
   end
