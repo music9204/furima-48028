@@ -2,7 +2,8 @@ const pay = () => {
   const form = document.getElementById("charge-form");
   if (!form) return;
 
-  const payjp = Payjp("pk_test_cfbe76fc67ba0519ace03d30");
+  const publicKey = form.dataset.key; 
+  const payjp = Payjp(publicKey);
 
   const matrix = payjp.elements();
   const numberElement = matrix.create("cardNumber");
@@ -34,3 +35,4 @@ const pay = () => {
 };
 
 window.addEventListener("turbo:load", pay);
+window.addEventListener("turbo:render", pay);
