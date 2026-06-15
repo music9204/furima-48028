@@ -7,10 +7,19 @@
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  
+  <script src="https://js.pay.jp/v2/" data-turbo-track="reload"></script>
+  
   <%= javascript_importmap_tags %>
 </head>
 
 <body>
+  <% if flash[:alert] %>
+    <div class="flash-alert">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+
   <%= yield %>
 </body>
 
